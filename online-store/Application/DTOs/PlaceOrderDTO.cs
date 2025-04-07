@@ -2,7 +2,7 @@ namespace online_store.Application.DTOs;
 
 public class OrderLineItemDTO
 {
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
     public int Quantity { get; set; }
 }
 

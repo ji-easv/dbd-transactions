@@ -1,36 +1,37 @@
 using System.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using online_store.Domain.Interfaces;
 using online_store.Infrastructure.Contexts;
 
 namespace online_store.Infrastructure.UnitOfWork;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork(ECommerceDbContext context) : IUnitOfWork, IDisposable
 {
-    private readonly ECommerceDbContext _context;
-
-    public UnitOfWork(ECommerceDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task SaveChangesAsync()
     {
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
-    public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
+    public async Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
     {
-        throw new NotImplementedException();
+        var transaction = await context.Database.BeginTransactionAsync(isolationLevel);
+        return transaction;
     }
 
-    public Task CommitAsync()
+    public async Task CommitAsync()
     {
-        throw new NotImplementedException();
+        await context.Database.CommitTransactionAsync();
     }
 
-    public Task RollbackAsync()
+    public async Task RollbackAsync()
     {
-        throw new NotImplementedException();
+        await context.Database.RollbackTransactionAsync();
+    }
+
+    public void Dispose()
+    {
+        context.Dispose();
+        GC.SuppressFinalize(this);
     }
 }   

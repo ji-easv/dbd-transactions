@@ -6,7 +6,7 @@ namespace online_store.Presentation;
 
 [ApiController]
 [Route("[controller]")]
-public class OrderController(OrderService orderService) : ControllerBase
+public class OrderController(OrderService orderService, InventoryService inventoryService) : ControllerBase
 {
     [HttpPost("create")]
     public async Task<IActionResult> CreateOrder([FromBody] PlaceOrderDTO orderDto)
@@ -17,5 +17,16 @@ public class OrderController(OrderService orderService) : ControllerBase
             return Ok();
         }
         return BadRequest();
+    }
+    
+    [HttpGet("stock/{productId}")]
+    public async Task<IActionResult> GetStock(Guid productId)
+    {
+        var stock = await inventoryService.GetStock(productId);
+        if (stock >= 0)
+        {
+            return Ok(stock);
+        }
+        return NotFound();
     }
 }
